@@ -43,7 +43,9 @@ Accurate identification of Indian medicinal plants is vital for preserving tradi
 ## 🛠️ Installation
 
 ```bash
-git clone https://github.com/poojith1903/EfficientDet-Medicinal-Leaf-Classification.git
-cd EfficientDet-Medicinal-Leaf-Classification
+git clone https://github.com/poojith1903/Efficientdet-medicinal-leaf-classification
+.git
+cd Efficientdet-medicinal-leaf-classification
+
 pip install -r requirements.txt
 python app/gradio_app.ipynb
