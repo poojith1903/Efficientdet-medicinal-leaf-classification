@@ -1,0 +1,129 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+import seaborn as sns
+import os
+
+# Path to your saved model
+model_path = r"C:\Users\LENOVO\Downloads\capstone project\efficientnet_bifpn_80class_final.keras"
+
+# Load the validation dataset
+combined_dir = r"C:\Users\LENOVO\Downloads\capstone project\combined data"
+img_size = (512, 512)
+batch_size = 32
+
+val_ds = tf.keras.utils.image_dataset_from_directory(
+    combined_dir,
+    validation_split=0.3,
+    subset="validation",
+    seed=123,
+    image_size=img_size,
+    batch_size=batch_size
+)
+
+# Get class names
+class_names = val_ds.class_names
+num_classes = len(class_names)
+print(f"Number of classes: {num_classes}")
+
+# Load the model
+model = load_model(model_path)
+
+# Generate predictions and true labels
+y_true = []
+y_pred = []
+image_paths = []
+
+# Create unbatched dataset to get individual images and labels
+unbatched_ds = val_ds.unbatch()
+
+for images, labels in unbatched_ds:
+    # Get the image and its true label
+    image = images.numpy()
+    true_label = labels.numpy()
+    
+    # Make prediction
+    pred = model.predict(np.expand_dims(image, axis=0), verbose=0)
+    pred_label = np.argmax(pred, axis=1)[0]
+    
+    # Store results
+    y_true.append(true_label)
+    y_pred.append(pred_label)
+
+# Convert to numpy arrays
+y_true = np.array(y_true)
+y_pred = np.array(y_pred)
+
+# Print classification report
+print("\nClassification Report:")
+print(classification_report(y_true, y_pred, target_names=class_names))
+
+# Generate confusion matrix
+cm = confusion_matrix(y_true, y_pred)
+
+# Plot confusion matrix
+plt.figure(figsize=(20, 20))
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_names)
+disp.plot(cmap=plt.cm.Blues, xticks_rotation=90)
+plt.title('Confusion Matrix')
+plt.savefig(r'C:\Users\LENOVO\Downloads\capstone project\combined data\confusion_matrix.png', bbox_inches='tight')
+plt.show()
+
+# Calculate per-class accuracy
+class_accuracy = cm.diagonal() / cm.sum(axis=1)
+
+# Plot class accuracy
+plt.figure(figsize=(15, 10))
+sns.barplot(x=np.arange(len(class_names)), y=class_accuracy)
+plt.xticks(np.arange(len(class_names)), class_names, rotation=90)
+plt.xlabel('Class')
+plt.ylabel('Accuracy')
+plt.title('Per-Class Accuracy')
+plt.tight_layout()
+plt.savefig(r'C:\Users\LENOVO\Downloads\capstone project\combined data\class_accuracy.png', bbox_inches='tight')
+plt.show()
+
+# Calculate and plot top misclassifications
+misclassification_counts = {}
+for true_idx, pred_idx in zip(y_true, y_pred):
+    if true_idx != pred_idx:
+        key = (class_names[true_idx], class_names[pred_idx])
+        misclassification_counts[key] = misclassification_counts.get(key, 0) + 1
+
+# Sort misclassifications by count
+sorted_misclassifications = sorted(misclassification_counts.items(), key=lambda x: x[1], reverse=True)
+
+# Plot top N misclassifications
+top_n = min(20, len(sorted_misclassifications))
+top_misclassifications = sorted_misclassifications[:top_n]
+
+plt.figure(figsize=(15, 10))
+plt.bar(range(top_n), [count for _, count in top_misclassifications])
+plt.xticks(range(top_n), [f"{true}->{pred}" for (true, pred), _ in top_misclassifications], rotation=90)
+plt.xlabel('Misclassification Type')
+plt.ylabel('Count')
+plt.title('Top Misclassifications')
+plt.tight_layout()
+plt.savefig(r'C:\Users\LENOVO\Downloads\capstone project\top_misclassifications.png', bbox_inches='tight')
+plt.show()
+
+# Calculate overall metrics
+overall_accuracy = np.mean(y_true == y_pred)
+print(f"\nOverall Accuracy: {overall_accuracy:.4f}")
+
+# Identify classes with the lowest accuracy
+class_acc_with_names = [(class_names[i], acc) for i, acc in enumerate(class_accuracy)]
+lowest_accuracy_classes = sorted(class_acc_with_names, key=lambda x: x[1])[:10]
+
+print("\nClasses with lowest accuracy:")
+for class_name, acc in lowest_accuracy_classes:
+    print(f"{class_name}: {acc:.4f}")
+
+# Identify classes with the highest accuracy
+highest_accuracy_classes = sorted(class_acc_with_names, key=lambda x: x[1], reverse=True)[:10]
+
+print("\nClasses with highest accuracy:")
+for class_name, acc in highest_accuracy_classes:
+    print(f"{class_name}: {acc:.4f}")
