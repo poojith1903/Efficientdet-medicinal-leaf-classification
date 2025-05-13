@@ -36,7 +36,7 @@ Accurate identification of Indian medicinal plants is vital for preserving tradi
 - 🔬 **Grad-CAM Heatmap Visualization**
 - 📦 **Bounding Box Localization**
 - 💊 **Therapeutic Recommendation System**
-- 🚀 **Streamlit Interface for Real-Time Use (Optional)**
+- 🚀 **Gradio Interface for Real-Time Use**
 
 ---
 
