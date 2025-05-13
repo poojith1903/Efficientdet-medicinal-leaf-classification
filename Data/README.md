@@ -8,7 +8,17 @@ A curated image dataset of Indian medicinal plant leaves, created to support res
 
 This dataset comprises high-quality images of various Indian medicinal leaves. The goal is to assist in developing AI models capable of identifying plant species from images and connecting them with known therapeutic uses.
 
+
 ---
+
+## 📦 Download the Dataset
+
+You can download the dataset directly from Kaggle using the Kaggle CLI:
+
+```bash
+kaggle datasets download -d aryashah2k/indian-medicinal-leaves-dataset
+unzip indian-medicinal-leaves-dataset.zip
+**Kaggle link**: https://www.kaggle.com/datasets/aryashah2k/indian-medicinal-leaves-dataset
 
 ## 📂 Dataset Structure
 
@@ -16,55 +26,49 @@ The dataset is organized into training and testing folders, with each subfolder 
 
 indian_medicinal_leaves_dataset/
 ├── train/
+│ ├── Aloevera/
 │ ├── Neem/
-│ ├── Aloe_Vera/
-│ ├── Tulsi/
 │ └── ...
 ├── test/
+│ ├── Aloevera/
 │ ├── Neem/
-│ ├── Aloe_Vera/
-│ ├── Tulsi/
 │ └── ...
+├── medicinal_leaf_98_full_v19.csv
 
 
-- **File Format**: JPEG (.jpg)
-- **Color Mode**: RGB
-- **Image Size**: Varies (typically resized to 224×224 or 512×512 during preprocessing)
-- **Labels**: Derived from folder names
-- **Classes**: 30+ medicinal leaf types
-- **Total Images**: 10,000+
+- **Image Format**: JPEG (.jpg)
+- **Classes**: 98 medicinal leaf types
+- **Metadata File**: `medicinal_leaf_98_full_v19.csv`
+
+---
+
+## 📋 Sample Metadata (from CSV)
+
+| Common Name | Scientific Name         | Therapeutic Uses                                | Caution                              |
+|-------------|--------------------------|--------------------------------------------------|---------------------------------------|
+| Aloevera    | Aloe vera                | Soothes skin, promotes healing, digestive aid    | Excess may cause GI issues            |
+| Amla        | Phyllanthus emblica      | Boosts immunity, aids digestion                  | May interact with blood thinners      |
+| Guduchi     | Tinospora cordifolia     | Reduces fever, boosts immunity                   | Avoid during pregnancy                |
+| Arali       | Nerium oleander          | Used for heart conditions (traditionally)        | **Highly toxic**, not for ingestion   |
+
+*See the full list in [`medicinal_leaf_98_full_v19.csv`](./medicinal_leaf_98_full_v19.csv)*
 
 ---
 
 ## 🧪 Applications
 
-This dataset is ideal for:
-
-- Training deep learning models for plant species classification
-- Object detection tasks (with added annotations)
-- Grad-CAM visualizations and explainability in model predictions
-- Ethnobotanical AI systems for Ayurvedic usage recommendation
-- Academic research and educational projects in machine learning and plant biology
+- Medicinal plant classification using deep learning
+- Object detection with models like EfficientDet
+- Grad-CAM-based visual interpretability
+- Therapeutic recommendation engines
+- Educational tools in ethnobotany and Ayurveda
 
 ---
 
-## 🏷️ Sample Classes
-
-| Class Name   | Scientific Name         | Common Uses                       |
-|--------------|--------------------------|-----------------------------------|
-| Neem         | *Azadirachta indica*     | Antiseptic, immunity booster      |
-| Aloe Vera    | *Aloe barbadensis*       | Skin care, digestion aid          |
-| Tulsi        | *Ocimum tenuiflorum*     | Respiratory relief, stress reducer |
-| Bhringraj    | *Eclipta prostrata*      | Hair growth, liver detox          |
-| Mint         | *Mentha arvensis*        | Cooling, digestive aid            |
-
-*A full list of species and descriptions is available in the metadata file.*
-
----
-
-## ⚙️ Usage Example (TensorFlow)
+## ⚙️ Usage Example (EfficientDet)
 
 ```python
+# Example: loading and preprocessing
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 datagen = ImageDataGenerator(rescale=1./255, validation_split=0.2)
@@ -76,6 +80,7 @@ train_generator = datagen.flow_from_directory(
     class_mode='categorical',
     subset='training'
 )
+
 
 val_generator = datagen.flow_from_directory(
     'indian_medicinal_leaves_dataset/train',
